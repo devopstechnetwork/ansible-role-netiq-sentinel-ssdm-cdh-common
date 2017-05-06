@@ -1,0 +1,64 @@
+---
+# tasks file for netiq-sentinel-ssdm
+- name: set OS dependent variables
+  tags:
+    - prereq
+  include_vars: "{{ item }}"
+  with_first_found:
+   - "{{ ansible_distribution }}_{{ ansible_distribution_version }}.yml"
+   - "{{ ansible_distribution }}_{{ ansible_distribution_major_version }}.yml"
+   - "{{ ansible_distribution }}.yml"
+   - "{{ ansible_os_family }}_{{ ansible_distribution_major_version }}.yml"
+   - "{{ ansible_os_family }}.yml"
+   - default.yml
+
+- name: default runlevel
+  lineinfile:
+    path: /etc/inittab
+    regexp: "^id"
+    line: "id:3:initdefault:"
+
+- name: add postgresql buildservice repo
+  zypper_repository:
+    name: "server_database_postgresql"
+    repo: "{{ postgresql_repo }}"
+    runrefresh: yes
+    auto_import_keys: yes
+    priority: 999
+  
+- name: install psycopg2
+  zypper:
+    name: python-psycopg2
+    state: present
+    
+# only for cloudera nodes
+- name: install apache2
+  zypper:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - apache2
+    - python-mysql
+    
+- name: Set vm.swappiness to 1 
+  sysctl:
+    name: vm.swappiness
+    value: 1
+    state: present
+
+# java
+- name: ensure /usr/java
+  file:
+    path: /usr/java
+    state: directory
+
+- name: install jdk
+  unarchive:
+    src: "{{ jdk_tar_gz }}"
+    dest: /usr/java
+
+- name: correct java version selected
+  alternatives:
+    name: java
+    path: /usr/java/jdk1.8.0_131/jre/bin/java
+
