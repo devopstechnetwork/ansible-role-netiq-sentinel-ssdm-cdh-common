@@ -1,7 +1,7 @@
 Role Name
 =========
 
-A brief description of the role goes here.
+Setup Cloudera nodes for Sentinel 8.
 
 Requirements
 ------------
@@ -30,9 +30,9 @@ Including an example of how to use your role (for instance, with variables passe
 License
 -------
 
-BSD
+MIT
 
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Norbert Klasen
